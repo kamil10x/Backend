@@ -1,14 +1,44 @@
-import mongoose from "mongoose";
 import dbConnect from "./db/index.js";
 import dotenv from "dotenv";
-import { DB_NAME } from "./constants.js";
+import { app } from "./app.js";
 
 dotenv.config({
     path: "./.env"
 })
 
+const port = process.env.PORT || 8000;
 //calling dataBase connection
-dbConnect();
+dbConnect()//it returns a promise since we have used aync
+.then(() => {
+    app.on("error",(err) => {
+        console.log("OOPs!! Could not connected to server, Error: ", err);
+        
+    })
+
+    app.listen(port, () => {
+        console.log(`Application is running on port ${port}`);
+    })
+})
+.catch((err) => {
+    console.log("DataBase Connection errror: ", err);
+    
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 // Another method to connect databse
