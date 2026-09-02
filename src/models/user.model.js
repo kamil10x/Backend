@@ -46,7 +46,7 @@ const userSchema = new mongoose.Schema({
     ]
 }, { timestamps: true })
 
-//middleware - used to encrypy password before saving (here it save only when password is modified and 1st time only)
+//middleware - used to encrypyt password before saving (here it save only when password is modified and 1st time only)
 userSchema.pre("save",async function (next) {
     if(!this.isModified()){
         return next();
