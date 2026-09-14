@@ -7,36 +7,34 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_SECRET,
 });
 
-//For uploading files
-
 const uploadCloudinary = async (localFile) => {
     try {
-        if(!localFile){
+        if (!localFile) {
             return null;
         }
-        //upload localfile in cloudinary
-        const response = await cloudinary.uploader.upload(localFile, {
-            resource_type : "auto",
-        })
-        console.log("File is uploaded on cloudinary");
-        console.log("File url: ", response.url);
-        //return response
-        return response;
-    } catch (error) {
 
-        fs.unlinkSync(localFile);//delete the localFile from our resource
+        const response = await cloudinary.uploader.upload(localFile, {
+            resource_type: "auto",
+        });
+
+        console.log("File is uploaded on Cloudinary");
+        console.log("File URL:", response.url);
+
+        // Delete local file after successful upload
+        fs.unlinkSync(localFile);
+
+        return response;
+
+    } catch (error) {
+        console.log("Cloudinary upload error:", error);
+
+        // Delete local file if upload failed
+        if (localFile && fs.existsSync(localFile)) {
+            fs.unlinkSync(localFile);
+        }
+
         return null;
     }
-}
+};
 
-
-
-// cloudinary.v2.uploader
-// .upload("dog.mp4", {
-//   resource_type: "video",
-//   public_id: "my_dog",
-//   overwrite: true,
-//   notification_url: "https://mysite.example.com/notify_endpoint"})
-// .then(result=>console.log(result));
-
-export { uploadCloudinary }
+export { uploadCloudinary };
