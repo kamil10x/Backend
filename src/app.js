@@ -22,6 +22,11 @@ app.use(urlencoded({
 
 app.use(cookieParser());
 
+app.get("/test", (req, res) => {
+    res.send("Server is working");
+});
+
+
 //import routs
 import userRouter from "./routes/user.routes.js"
 
@@ -30,4 +35,38 @@ import userRouter from "./routes/user.routes.js"
 
 app.use("/api/v1/users", userRouter);
 
+console.log("USER ROUTER MOUNTED");
+
 export { app }
+
+// import express from "express";
+// import cors from "cors";
+// import cookieParser from "cookie-parser";
+
+// import userRouter from "./routes/user.routes.js";
+
+// const app = express();
+
+// app.use(cors({
+//     origin: process.env.CORS_ORIGIN,
+//     credentials: true
+// }));
+
+// app.use(express.json({
+//     limit: "16kb"
+// }));
+
+// app.use(express.urlencoded({
+//     limit: "16kb",
+//     extended: true
+// }));
+
+// app.use(cookieParser());
+
+// app.get("/test", (req, res) => {
+//     res.send("Server is working");
+// });
+
+// app.use("/api/v1/users", userRouter);
+
+// export { app };

@@ -1,14 +1,14 @@
 import dbConnect from "./db/index.js";
-import dotenv from "dotenv";
-import { app } from "./app.js";
 
 dotenv.config({
     path: "./.env"
 })
+import dotenv from "dotenv";
+import { app } from "./app.js";
 
 const port = process.env.PORT || 8000;
 //calling dataBase connection
-dbConnect()//it returns a promise since we have used aync
+dbConnect()//it returns a promise since we have used async
 .then(() => {
     app.on("error",(err) => {
         console.log("OOPs!! Could not connected to server, Error: ", err);
@@ -20,7 +20,7 @@ dbConnect()//it returns a promise since we have used aync
     })
 })
 .catch((err) => {
-    console.log("DataBase Connection errror: ", err);
+    console.log("DataBase Connection error: ", err);
     
 })
 
