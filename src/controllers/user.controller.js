@@ -8,12 +8,12 @@ import { ApiResponse } from '../utils/apiResponse.js';
 
 const generateAccessAndRefreshTokens = async(userId) => {
     try {
-        const user = User.findById(userId);
+        const user = await User.findById(userId);
         const accessToken = user.generateAccessToken();
         const refreshToken = user.generateRefreshToken();
 
         user.refreshToken = refreshToken
-        await user.save({validateBeforeSave: flase});
+        await user.save({validateBeforeSave: false});
 
         return {accessToken, refreshToken}
 
@@ -21,6 +21,7 @@ const generateAccessAndRefreshTokens = async(userId) => {
         console.log("Generation of tokens failed: ", error);
         throw new ApiError(500, "Generation of access token failed");
     }
+    
 }
 
 
@@ -125,21 +126,46 @@ const loginUser = asyncHandler(async (req, res) => {
     //check if username and pass are correct
     //if correct generate access and refresh token
     //and send them to user
+
+    console.log("🔥 LOGIN CONTROLLER HIT");
+    console.log("Request body:", req.body);
+
     const {userName, email, password} = req.body;
 
-    if(!userName || !email){
+    console.log("Email: ", email);
+    
+
+    if(!userName && !email){
         throw new ApiError(400, "Username or password is required");
     }
 
-    const user = await User.findOne({
-        $or : [{userName}, {email}]
-    })
+    // const user = await User.findOne({
+    //     $or : [{userName}, {email}]
+    // })
 
-    if(!user){
+    // if(!user){
+    //     throw new ApiError(404, "User not found");
+    // }
+
+    // const isPasswordValid = await user.isPasswordCorrect(password);
+
+    console.log("Searching for user...");
+
+    const user = await User.findOne({
+        $or: [{ userName }, { email }]
+    });
+
+    console.log("User found:", !!user);
+
+    if (!user) {
         throw new ApiError(404, "User not found");
     }
 
+    console.log("Checking password...");
+
     const isPasswordValid = await user.isPasswordCorrect(password);
+
+    console.log("Password valid:", isPasswordValid);
 
     if(!isPasswordValid){
         throw new ApiError(404, "PassWord is invalid");
@@ -160,8 +186,8 @@ const loginUser = asyncHandler(async (req, res) => {
 
     return res
     .status(200)
-    .cookie("refreshToken: ", refreshToken)
-    .cookie("accessToken: ", accessToken)
+    .cookie("refreshToken", refreshToken, options)
+    .cookie("accessToken", accessToken, options)
     .json(
         new ApiResponse(200,
             {
@@ -176,28 +202,29 @@ const loginUser = asyncHandler(async (req, res) => {
 })
 
 const logoutUser = asyncHandler(async(req, res) => {
-    await User.findOneAndUpdate(
+    console.log("Logout controller hit");
+    console.log("Authorization: ", req.user._id);
+    
+    
+    await User.findByIdAndUpdate(
         req.user._id,
         {
-            "accessToken" : undefined
-        },
-        {
-            new : true
+            $unset: {
+                refreshToken: 1 // this removes the field from document
+            }
         }
     )
 
     const options = {
-        httpOnly : true,
-        secure : true
+        httpOnly: true,
+        secure: true
     }
 
     return res
     .status(200)
     .clearCookie("accessToken", options)
     .clearCookie("refreshToken", options)
-    .json(
-        new ApiResponse(200, {}, "Logged out successfully")
-    )
+    .json(new ApiResponse(200, {}, "User logged Out"))
 })
 
 export  {

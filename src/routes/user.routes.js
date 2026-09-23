@@ -28,7 +28,17 @@ router.route("/register").post(
     )
 
 
-router.route("/login").post(loginUser);
+// router.route("/login").post(loginUser);
+
+router.use((req, res, next) => {
+    console.log("USER ROUTER HIT:", req.method, req.originalUrl);
+    next();
+});
+
+router.route("/login").post((req, res, next) => {
+    console.log("LOGIN ROUTE HIT");
+    next();
+}, loginUser);
 
 //secured routes
 router.route("/logout").post(verifyJWT, logoutUser);
